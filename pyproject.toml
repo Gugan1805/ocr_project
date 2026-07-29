@@ -1,0 +1,18 @@
+[project]
+name = "ocr-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.18.5",
+    "fastapi>=0.139.2",
+    "openai>=2.48.0",
+    "pillow>=12.3.0",
+    "pydantic-settings>=2.14.2",
+    "pymupdf>=1.28.0",
+    "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.32",
+    "sqlalchemy>=2.0.51",
+    "uvicorn>=0.51.0",
+]
