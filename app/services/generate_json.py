@@ -5,34 +5,50 @@ import os
 class JSONGeneratorService:
     @staticmethod
     def map_json_from_text(result):
-        """Map extracted text to JSON format."""
-        
-        try:
-        
-            data = json.loads(result)
-            
-            data = JSONGeneratorService.remove_empty(data)
 
-            # Extra safety: prevent amount being copied into quantity
-            for item in data.get("items", []):
+            try:
+                raw = json.loads(result)
 
-                qty = item.get("quantity")
-                amount = item.get("amount")
-                unit_price = item.get("unit_price")
+                raw = JSONGeneratorService.remove_empty(raw)
 
-                # Quantity should never equal Amount
-                if qty is not None and amount is not None and str(qty) == str(amount):
-                    item.pop("quantity", None)
+                # Extra safety
+                for item in raw.get("items", []):
+                    qty = item.get("quantity")
+                    amount = item.get("amount")
+                    unit_price = item.get("unit_price")
 
-                # Quantity should never equal Unit Price
-                if qty is not None and unit_price is not None and str(qty) == str(unit_price):
-                    item.pop("quantity", None)
+                    if qty is not None and amount is not None and str(qty) == str(amount):
+                        item.pop("quantity", None)
 
-            return data
+                    if qty is not None and unit_price is not None and str(qty) == str(unit_price):
+                        item.pop("quantity", None)
 
-        except json.JSONDecodeError:
-            
-            raise Exception("AI returned invalid JSON. Please check the input and try again.")
+                # Convert items to required table format
+                table = []
+
+                for item in raw.get("items", []):
+                    table.append({
+                        "Product Description": item.get("description", ""),
+                        "Quantity": item.get("quantity", ""),
+                        "Unit Price": item.get("unit_price", ""),
+                        "Amount": item.get("amount", "")
+                    })
+
+                # Match required response format
+                data = {
+                    "Invoice Number": raw.get("invoice_number", ""),
+                    "Date of Invoice": raw.get("invoice_date", ""),
+                    "Total RM": raw.get("total_amount", ""),
+                    "Dealer Name": raw.get("vendor_name", ""),
+                    "Area": raw.get("area", ""),
+                    "table": table,
+                    "isInvoice": raw.get("document_type", "").lower() == "invoice"
+                }
+
+                return data
+
+            except json.JSONDecodeError:
+                raise Exception("AI returned invalid JSON.")
 
     @staticmethod
     def remove_empty(obj):

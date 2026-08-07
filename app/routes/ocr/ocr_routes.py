@@ -210,10 +210,25 @@ Every item in the items array must contain the description field.
         extension = extension,
     )
     
-    json_data = service_generate.map_json_from_text(response)
+    json_data = service_generate.map_json_from_text(response["text"])
+    usage_data = service_ai.price_calculation(response['usage'])
     
+
     return {
-        "status" : True,
-        "response": json_data,
-        "message": "Successfully extracted and saved JSON data.",
+        "status": True,
+        "message": "1 out of 1 files processed",
+        "data": {
+            file.filename: {
+                "status": True,
+                "message": "File processed successfully",
+                "data": json_data,
+                "status_code": 200,
+                "isInvoice": json_data["isInvoice"],
+                "invoice_number": json_data["Invoice Number"],
+                "processing_time": "",
+                "number_of_pages": ""
+            }
+        },
+        "page_count": response['page_count'],
+        'pricing' : usage_data
     }
